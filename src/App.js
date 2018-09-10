@@ -10,15 +10,7 @@ import { State } from 'libreact/lib/State'
 import Favourites from 'components/Favourites'
 import SearchResultsPanel from 'components/SearchResultsPanel'
 import { connect } from 'react-redux'
-import types from 'constants/actionTypes'
-
-const toggleStar = (set, { starredSearches, searchTerm }) => {
-  if (starredSearches.includes(searchTerm)) {
-    return set({ starredSearches: starredSearches.filter(star => star !== searchTerm) })
-  }
-
-  set({ starredSearches: [...starredSearches, searchTerm] })
-}
+import types from 'misc/actionTypes'
 
 const Sidebar = styled(Box)`
   height: 100vh;
@@ -27,7 +19,7 @@ const Sidebar = styled(Box)`
 `
 
 const App = ({
-  starredSearches,
+  favouriteSearches,
   dispatch,
   pending,
   performed,
@@ -36,15 +28,21 @@ const App = ({
 }) => (
   <div>
     <Flex flexWrap='wrap'>
-      <State init={{ searchTerm: '', starredSearches }}>{({
-        searchTerm,
-        starredSearches
+      <State init={{ searchTerm: '' }}>{({
+        searchTerm
       }, set) =>
         <React.Fragment>
           <Box width={5/7}>
             <SearchPanel
-              currentSearchTermIsStarred={starredSearches.includes(searchTerm)}
-              onStarClick={() => toggleStar(set, { starredSearches, searchTerm })}
+              currentSearchTermIsStarred={favouriteSearches.includes(searchTerm)}
+              onStarClick={() => dispatch({
+                type: types.PERSIST_FAVOURITES,
+                payload: {
+                  favouriteSearches: (favouriteSearches.includes(searchTerm)
+                    ? favouriteSearches.filter(item => item !== searchTerm)
+                    : [...favouriteSearches, searchTerm])
+                }
+              })}
               searchTerm={searchTerm}
               pending={pending}
               onSearch={() => dispatch({ type: types.SEARCH_REQUEST, payload: { searchTerm } })}
@@ -61,7 +59,7 @@ const App = ({
             <Fixed>
               <Sidebar p={3}>
                 <Favourites
-                  data={starredSearches}
+                  data={favouriteSearches}
                   onItemClick={(item) => set({ searchTerm: item })}
                 />
               </Sidebar>
@@ -74,16 +72,17 @@ const App = ({
 )
 
 App.propTypes = {
-  starredSearches: [],
+  favouriteSearches: [],
   searchResults: []
 }
 
 App.defaultProps = {
-  starredSearches: [],
+  favouriteSearches: [],
   searchResults: []
 }
 
 export default connect(state => ({
+  favouriteSearches: state.favouriteSearches,
   searchResults: state.data,
   pending: state.pending,
   performed: state.performed,

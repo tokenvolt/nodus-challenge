@@ -1,7 +1,7 @@
 import { call } from 'redux-saga/effects'
 import * as matchers from 'redux-saga-test-plan/matchers'
 import { fetchArticle, search } from './sagas'
-import types from 'constants/actionTypes'
+import types from 'misc/actionTypes'
 import api from 'services/api'
 import { expectSaga } from 'redux-saga-test-plan'
 import { throwError } from 'redux-saga-test-plan/providers'

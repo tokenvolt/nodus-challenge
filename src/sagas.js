@@ -5,10 +5,12 @@ import {
   takeEvery,
   takeLatest
 } from 'redux-saga/effects'
-import types from 'constants/actionTypes'
+import types from 'misc/actionTypes'
 import api from 'services/api'
 import * as R from 'ramda'
 import arrayToSentence from 'array-to-sentence'
+import { setAsync } from 'services/storage'
+import { FAVOURITE_SEARCHES } from 'misc'
 
 const searchUrl = (searchTerm) => `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pmc&term=${searchTerm}&retmode=json&tool=my_tool&email=my_email@example.com`
 const articleUrl = (id) => `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pmc&id=${id}&retmode=json&tool=my_tool&email=my_email@example.com`
@@ -51,8 +53,15 @@ export function* search(action) {
   }
 }
 
+export function* persistFavourites(action) {
+  const { favouriteSearches } = action.payload
+
+  yield call(setAsync, FAVOURITE_SEARCHES, favouriteSearches)
+}
+
 function* root() {
   yield takeEvery(types.FETCH_ARTICLE_REQUEST, fetchArticle)
+  yield takeLatest(types.PERSIST_FAVOURITES, persistFavourites)
   yield takeLatest(types.SEARCH_REQUEST, search)
 }
 

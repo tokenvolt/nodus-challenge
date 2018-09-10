@@ -1,6 +1,9 @@
-import types from 'constants/actionTypes'
+import types from 'misc/actionTypes'
+import { get } from 'services/storage'
+import { FAVOURITE_SEARCHES } from 'misc'
 
 const initialState = {
+  favouriteSearches: get(FAVOURITE_SEARCHES) || [],
   lastSearchTerm: null,
   pending: false,
   performed: false,
@@ -41,6 +44,15 @@ export default function(state = initialState, action) {
       return {
         ...state,
         data: []
+      }
+    }
+
+    case types.PERSIST_FAVOURITES: {
+      const { favouriteSearches } = action.payload
+
+      return {
+        ...state,
+        favouriteSearches
       }
     }
 
